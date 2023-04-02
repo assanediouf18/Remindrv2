@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:remindr/services/authentication.dart';
 import 'package:remindr/tools.dart';
 
 import '../remindr_theme.dart';
@@ -18,6 +19,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   bool isSigningIn = true;
+  String password = "";
+  String email = "";
+  String redirectionSentence = "", redirectionQuestion = "", actionButtonText = "";
+  AuthService auth = AuthService();
 
   @override
   void initState() {
@@ -25,11 +30,29 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
     super.initState();
   }
 
+  void _updateActionText() {
+    if(isSigningIn) {
+      actionButtonText = "Se Connecter";
+      redirectionSentence = "Créer un compte";
+      redirectionQuestion = "Tu n'as pas de compte ?";
+    } else {
+      actionButtonText = "S'inscrire";
+      redirectionSentence = "Se connecter";
+      redirectionQuestion = "Tu as déjà un compte ?";
+    }
+  }
+
+  Future _connectUser() async {
+    isSigningIn ? await auth.signInWithEmailPassword(email, password) :
+    await auth.registerWithEmailPassword(email, password);
+  }
+
   @override
   Widget build(BuildContext context) {
+    _updateActionText();
     return buildReminderGradientScaffold(
         context: context,
-        appBarTitle: isSigningIn ? "Se connecter" : "S'inscrire",
+        appBarTitle: actionButtonText,
         body: Container(
           decoration: RemindrMaterialTheme.getGradientBackground(context),
           padding: const EdgeInsets.only(top: 64, left: 16, right: 16),
@@ -39,15 +62,47 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
               children: [
                 TextFormField(
                   decoration: RemindrMaterialTheme.appInputDecoration.copyWith(hintText: "Adresse email"),
+                  // The validator receives the text that the user has entered.
+                  validator: (value) {
+                    email = value!;
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 8.0,),
                 TextFormField(
+                  obscureText: true,
                   decoration: RemindrMaterialTheme.appInputDecoration.copyWith(hintText: "Mot de passe"),
+                  // The validator receives the text that the user has entered.
+                  validator: (value) {
+                    password = value!;
+                    return null;
+                  },
                 ),
-                RemindrHomeButton(title: "Se connecter", onPressed: (){}),
+                const SizedBox(height: 32,),
+                RemindrHomeButton(title: actionButtonText, onPressed: () async {
+                  // Validate returns true if the form is valid, or false otherwise.
+                  if (_formKey.currentState!.validate()) {
+                    await _connectUser();
+                  }
+                }),
                 RemindrHomeButton(title: "Annuler", onPressed: (){
                   Navigator.popAndPushNamed(context, HomePage.routeName);
                 }),
+                const SizedBox(height: 8.0,),
+                Center(child: Text(redirectionQuestion)),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      isSigningIn = !isSigningIn;
+                    });
+                  },
+                  child: Text(
+                    redirectionSentence,
+                    style: TextStyle(
+                      color: RemindrMaterialTheme.getColor(context, nullableColor: Colors.yellow),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

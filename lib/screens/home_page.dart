@@ -7,42 +7,84 @@ import 'package:remindr/services/authentication.dart';
 import '../models/user.dart';
 import '../tools.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   static const String routeName = "/home-page";
 
-  Column buildHomeButtons(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        RemindrHomeButton(title: "Se connecter", onPressed: (){
-          AuthService().logout();
-        },),
-        const SizedBox(height: 20,),
-        RemindrHomeButton(title: "S'inscrire", onPressed: (){
-          Navigator.pushNamed(context, AuthenticationScreen.routeName);
-        },),
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  List<String> pageTitles = ["Aujourd'hui", "Tous les rappels"];
+
+  BottomNavigationBar _buildBottomNavBar() {
+    return BottomNavigationBar(
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: "Home",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.list),
+          label: "All",
+        ),
       ],
+      currentIndex: _selectedIndex,
+      onTap: (index) {
+        setState(() {
+          _selectedIndex = index;
+        });
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<ReminderUser?>(context);
-    if(user == null) {
+    if (user == null) {
       return const AuthenticationScreen();
     }
-    return buildReminderGradientScaffold(
-        context: context,
-        appBarTitle: "Home",
-        body: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: Container(
-            decoration: RemindrMaterialTheme.getGradientBackground(context),
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-        )
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+            pageTitles[_selectedIndex],
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: (){
+                showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text("Déconnection"),
+                      content: const Text("Es-tu sûr de vouloir te déconnecter ?"),
+                      actions: [
+                        TextButton(
+                          child: const Text("Non"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            },
+                        ),
+                        TextButton(
+                          child: const Text("Oui"),
+                          onPressed: () {
+                            AuthService().logout();
+                          },
+                        )
+                      ],
+                      elevation: 0.5,
+                    ),
+                );
+              },
+              icon: const Icon(Icons.logout),
+          )
+        ],
+      ),
+      body: Container(),
+      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 }

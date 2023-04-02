@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
                           child: const Text("Oui"),
                           onPressed: () {
                             AuthService().logout();
+                            Navigator.pop(context);
                           },
                         )
                       ],

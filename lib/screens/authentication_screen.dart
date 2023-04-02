@@ -1,5 +1,7 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 import 'package:remindr/services/authentication.dart';
 
 import '../remindr_theme.dart';
@@ -18,8 +20,10 @@ class AuthenticationScreen extends StatefulWidget {
 
 class _AuthenticationScreenState extends State<AuthenticationScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordController = TextEditingController();
 
   bool isSigningIn = true;
+  bool _passwordChecked = false;
   String password = "";
   String email = "";
   String redirectionSentence = "", redirectionQuestion = "", actionButtonText = "";
@@ -65,7 +69,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                   decoration: RemindrMaterialTheme.appInputDecoration.copyWith(hintText: "Adresse email"),
                   // The validator receives the text that the user has entered.
                   validator: (value) {
-                    email = value!;
+                    if(value == null) return;
+                    if(EmailValidator.validate(value)) {
+                      email = value;
+                    }
                     return null;
                   },
                 ),
@@ -73,16 +80,25 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                 TextFormField(
                   obscureText: true,
                   decoration: RemindrMaterialTheme.appInputDecoration.copyWith(hintText: "Mot de passe"),
-                  // The validator receives the text that the user has entered.
-                  validator: (value) {
-                    password = value!;
-                    return null;
-                  },
+                  onChanged: (value) => password = value,
+                  controller: _passwordController,
+                ),
+                FlutterPwValidator(
+                    width: 400,
+                    height: 50,
+                    minLength: 8,
+                    onSuccess: () {
+                      _passwordChecked = true;
+                    },
+                    onFail: () {
+                      _passwordChecked = false;
+                    },
+                    controller: _passwordController,
                 ),
                 const SizedBox(height: 32,),
                 RemindrHomeButton(title: actionButtonText, onPressed: () async {
                   // Validate returns true if the form is valid, or false otherwise.
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKey.currentState!.validate() && (_passwordChecked || isSigningIn)) {
                     await _connectUser();
                   }
                 }),

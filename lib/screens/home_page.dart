@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:remindr/remindr_theme.dart';
 import 'package:remindr/screens/authentication_screen.dart';
 import 'package:remindr/services/authentication.dart';
 
 import '../models/user.dart';
-import '../tools.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

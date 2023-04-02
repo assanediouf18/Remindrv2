@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:remindr/services/authentication.dart';
-import 'package:remindr/tools.dart';
 
 import '../remindr_theme.dart';
+import '../utils/gradient_scaffold.dart';
+import '../utils/home_button.dart';
 import 'home_page.dart';
 
 class AuthenticationScreen extends StatefulWidget {

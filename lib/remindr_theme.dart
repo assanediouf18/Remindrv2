@@ -4,6 +4,16 @@ import 'package:google_fonts/google_fonts.dart';
 class RemindrMaterialTheme {
   const RemindrMaterialTheme();
 
+  //Retourne le widget de chargement
+  /*static Center buildLoading() {
+    return Center(
+      child: SpinKitRotatingPlain(
+        color : Colors.greenAccent[200],
+        size: 25.0,
+      ),
+    );
+  }*/
+
   static InputDecoration appInputDecoration = const InputDecoration(
     fillColor: Colors.white,
     filled: true,
